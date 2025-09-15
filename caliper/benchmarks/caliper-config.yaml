@@ -1,0 +1,22 @@
+---
+caliper:
+  benchconfig: ./config.yaml
+  networkconfig: networks/ethereum/geth-network.json
+  workspace: ./
+  report:
+    path: report.html
+    format: html
+  logging:
+    template: "%timestamp%%level%%message%"
+    formats:
+      timestamp: "YYYY-MM-DD HH:mm:ss.SSS"
+    targets:
+      console:
+        target: console
+        enabled: true
+        level: info
+      file:
+        target: file
+        enabled: true
+        level: debug
+        filename: caliper.log

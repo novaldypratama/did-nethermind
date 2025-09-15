@@ -1,0 +1,21 @@
+{
+  "name": "caliper-nethermind",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.12.1",
+  "devDependencies": {
+    "@hyperledger/caliper-core": "^0.6.0",
+    "@hyperledger/caliper-ethereum": "^0.6.0",
+    "axios": "^1.10.0",
+    "bip39": "^3.1.0",
+    "ethers": "^6.15.0",
+    "web3": "^4.16.0"
+  }
+}

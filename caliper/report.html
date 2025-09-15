@@ -1,0 +1,957 @@
+<!doctype html>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+<script>
+    function plotChart(divId, chartData) {
+        // Convert from stringified html, to valid JSON
+        const chartDetails = JSON.parse(chartData.replace(/&quot;/g,'"'));
+        new Chart(document.getElementById(divId), {
+            type: chartDetails.type,
+            data: {
+                labels: chartDetails.labels,
+                datasets: chartDetails.datasets
+            },
+            options: {
+                legend: { display: chartDetails.legend },
+                title: {
+                    display: true,
+                    text: chartDetails.title
+                }
+            }
+        });
+    }
+</script>
+<html>
+<head>
+    <title>Hyperledger Caliper Report</title>
+    <meta charset="UTF-8"/>
+    <style type="text/css">
+        .left-column {
+            position: fixed;
+            width:20%;
+        }
+        .left-column ul {
+            display: block;
+            padding: 0;
+            list-style: none;
+            border-bottom: 1px solid #d9d9d9;
+            font-size: 14px;
+        }
+        .left-column h2{
+            font-size: 24px;
+            font-weight: 400;
+            margin-block-end: 0.5em;
+        }
+        .left-column h3{
+            font-size: 18px;
+            font-weight: 400;
+            margin-block-end: 0.5em;
+        }
+        .left-column li{
+            margin-left: 10px;
+            margin-bottom: 5px;
+            color: #5e6b73;
+        }
+        .right-column {
+            margin-left: 22%;
+            width:60%;
+        }
+        .right-column table {
+            font-size:11px;
+            color:#333333;
+            border-width: 1px;
+            border-color: #666666;
+            border-collapse: collapse;
+            margin-bottom: 10px;
+        }
+        .right-column h2{
+            font-weight: 400;
+        }
+        .right-column h3{
+            font-weight: 400;
+        }
+        .right-column h4 {
+            font-weight: 400;
+            margin-block-end: 0;
+        }
+        .right-column th {
+            border-width: 1px;
+            font-size: small;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #f2f2f2;
+        }
+        .right-column td {
+            border-width: 1px;
+            font-size: small;
+            padding: 8px;
+            border-style: solid;
+            border-color: #666666;
+            background-color: #ffffff;
+            font-weight: 400;
+        }
+        .tag {
+            margin-bottom: 10px;
+            padding: 5px 10px;
+        }
+        pre {
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            background-color: #f2f2f2;
+            -webkit-border-radius: 5px;
+            -moz-border-radius: 5px;
+            -khtml-border-radius: 5px;
+            overflow:auto;
+            max-height:300px;
+            font-size:12px;
+        }
+        .charting {
+            display:flex;
+            flex-direction:row;
+            flex-wrap: wrap;
+            page-break-inside: auto;
+        }
+        .chart {
+            display:flex;
+            flex:1;
+            max-width: 50%;
+        }
+    </style>
+</head>
+<body style="font-family: IBM Plex Sans; font-weight: 200;">
+    <main>
+        <div class="left-column">
+            <img src="https://hyperledger.github.io/caliper/assets/img/hyperledger_caliper_logo_color.png" style="width:95%;" alt="">
+            <ul>
+                <h3>&nbspBasic information</h3>
+                <li>DLT: &nbsp<span style="font-weight: 500;">ethereum</span></li>
+                <li>Name: &nbsp<span style="font-weight: 500;">SSI&#x2F;DID Management System Performance Benchmark on Optimized Besu</span></li>
+                <li>Description: &nbsp<span style="font-weight: 500;">Comprehensive benchmark of SSI operations on Besu CLIQUE PoA network. Tests various DID and Verifiable Credential operations with optimized gas configuration. Block time: 3 seconds, Gas limit: 15M, Target utilization: 80%
+</span></li>
+                <li>Benchmark Rounds: &nbsp<span style="font-weight: 500;">9</span></li>
+                <li><a href="#benchmarkInfo">Details</a></li>
+            </ul>
+            <ul>
+                <h3>&nbspBenchmark results</h3>
+                <li><a href="#benchmarksummary">Summary</a></li>
+                    <li><a href="#Role_Assignment_Low">Role_Assignment_Low</a></li>
+                    <li><a href="#DID_Creation_Low">DID_Creation_Low</a></li>
+                    <li><a href="#Credential_Issuance_Low">Credential_Issuance_Low</a></li>
+                    <li><a href="#Role_Assignment_Medium">Role_Assignment_Medium</a></li>
+                    <li><a href="#DID_Creation_Medium">DID_Creation_Medium</a></li>
+                    <li><a href="#Credential_Issuance_Medium">Credential_Issuance_Medium</a></li>
+                    <li><a href="#Role_Assignment_High">Role_Assignment_High</a></li>
+                    <li><a href="#DID_Creation_High">DID_Creation_High</a></li>
+                    <li><a href="#Credential_Issuance_High">Credential_Issuance_High</a></li>
+            </ul>
+            <ul>
+                <h3>&nbspSystem under test</h3>
+                <li><a href="#sutdetails">Details</a></li>
+            </ul>
+        </div>
+
+        <div class="right-column">
+            <h1 style="padding-top: 3em; font-weight: 500;">Caliper report</h1>
+            <div style="border-bottom: 1px solid #d9d9d9; margin-bottom: 10px;" id="benchmarksummary">
+                <table style="min-width: 100%;">
+                    <h3>Summary of performance metrics</h3>
+                    <tr>
+                         <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                    </tr>
+
+                    <tr>
+                         <td>Role_Assignment_Low</td> <td>50</td> <td>0</td> <td>30.8</td> <td>5.08</td> <td>3.49</td> <td>4.29</td> <td>9.8</td>
+                    </tr>
+                    <tr>
+                         <td>DID_Creation_Low</td> <td>50</td> <td>0</td> <td>17.3</td> <td>5.15</td> <td>4.49</td> <td>4.96</td> <td>6.4</td>
+                    </tr>
+                    <tr>
+                         <td>Credential_Issuance_Low</td> <td>50</td> <td>0</td> <td>31.3</td> <td>5.40</td> <td>3.87</td> <td>4.66</td> <td>9.1</td>
+                    </tr>
+                    <tr>
+                         <td>Role_Assignment_Medium</td> <td>150</td> <td>0</td> <td>30.2</td> <td>6.05</td> <td>3.22</td> <td>4.49</td> <td>18.2</td>
+                    </tr>
+                    <tr>
+                         <td>DID_Creation_Medium</td> <td>150</td> <td>0</td> <td>30.3</td> <td>6.04</td> <td>3.12</td> <td>4.45</td> <td>13.9</td>
+                    </tr>
+                    <tr>
+                         <td>Credential_Issuance_Medium</td> <td>150</td> <td>0</td> <td>30.4</td> <td>6.02</td> <td>3.21</td> <td>4.60</td> <td>17.6</td>
+                    </tr>
+                    <tr>
+                         <td>Role_Assignment_High</td> <td>300</td> <td>0</td> <td>30.1</td> <td>6.20</td> <td>3.13</td> <td>4.66</td> <td>21.1</td>
+                    </tr>
+                    <tr>
+                         <td>DID_Creation_High</td> <td>300</td> <td>0</td> <td>30.2</td> <td>6.16</td> <td>3.23</td> <td>4.64</td> <td>21.8</td>
+                    </tr>
+                    <tr>
+                         <td>Credential_Issuance_High</td> <td>300</td> <td>0</td> <td>30.2</td> <td>6.13</td> <td>3.18</td> <td>4.68</td> <td>20.9</td>
+                    </tr>
+                </table>
+            </div>
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Role_Assignment_Low">
+                <h2>Benchmark round: Role_Assignment_Low</h2>
+                <p>Assign roles to entities in the network (baseline test)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for Role_Assignment_Low</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Role_Assignment_Low</td> <td>50</td> <td>0</td> <td>30.8</td> <td>5.08</td> <td>3.49</td> <td>4.29</td> <td>9.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Role_Assignment_Low</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [KB]</th> <th>Disc Write [B]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.1925</td> <td>0.119375</td> <td>917</td> <td>914</td> <td>23.7</td> <td>22.1</td> <td>0.00</td> <td>92.0</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.211875</td> <td>0.12625</td> <td>916</td> <td>913</td> <td>38.7</td> <td>26.2</td> <td>0.00</td> <td>344</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.15125</td> <td>0.1</td> <td>919</td> <td>918</td> <td>32.1</td> <td>27.9</td> <td>0.00</td> <td>532</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.144375</td> <td>0.09125</td> <td>920</td> <td>919</td> <td>36.2</td> <td>19.7</td> <td>0.00</td> <td>608</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.19625</td> <td>0.1225</td> <td>928</td> <td>925</td> <td>120</td> <td>523</td> <td>0.00</td> <td>884</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="DID_Creation_Low">
+                <h2>Benchmark round: DID_Creation_Low</h2>
+                <p>Create DID documents for issuers and holders</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for DID_Creation_Low</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>DID_Creation_Low</td> <td>50</td> <td>0</td> <td>17.3</td> <td>5.15</td> <td>4.49</td> <td>4.96</td> <td>6.4</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for DID_Creation_Low</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [KB]</th> <th>Disc Write [B]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.0375</td> <td>0.036875</td> <td>916</td> <td>916</td> <td>52.4</td> <td>44.7</td> <td>0.00</td> <td>12.0</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.036875</td> <td>0.035625</td> <td>916</td> <td>915</td> <td>64.7</td> <td>49.0</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.07125</td> <td>0.048125</td> <td>925</td> <td>923</td> <td>56.8</td> <td>39.8</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.04</td> <td>0.038125</td> <td>926</td> <td>923</td> <td>58.1</td> <td>43.0</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.0375</td> <td>0.03625</td> <td>932</td> <td>930</td> <td>148</td> <td>554</td> <td>0.00</td> <td>8.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Credential_Issuance_Low">
+                <h2>Benchmark round: Credential_Issuance_Low</h2>
+                <p>Issue verifiable credentials at high throughput</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for Credential_Issuance_Low</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Credential_Issuance_Low</td> <td>50</td> <td>0</td> <td>31.3</td> <td>5.40</td> <td>3.87</td> <td>4.66</td> <td>9.1</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Credential_Issuance_Low</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [KB]</th> <th>Disc Write [KB]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.063125</td> <td>0.04375</td> <td>915</td> <td>915</td> <td>56.9</td> <td>43.6</td> <td>128</td> <td>4.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.05625</td> <td>0.044375</td> <td>917</td> <td>917</td> <td>51.8</td> <td>36.6</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.060625</td> <td>0.045</td> <td>926</td> <td>926</td> <td>61.8</td> <td>34.1</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.07</td> <td>0.045</td> <td>928</td> <td>927</td> <td>47.3</td> <td>42.5</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.12375</td> <td>0.06375</td> <td>935</td> <td>934</td> <td>140</td> <td>582</td> <td>136</td> <td>0.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Role_Assignment_Medium">
+                <h2>Benchmark round: Role_Assignment_Medium</h2>
+                <p>Assign roles to entities in the network (baseline test)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for Role_Assignment_Medium</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Role_Assignment_Medium</td> <td>150</td> <td>0</td> <td>30.2</td> <td>6.05</td> <td>3.22</td> <td>4.49</td> <td>18.2</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Role_Assignment_Medium</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.07125</td> <td>0.0525</td> <td>916</td> <td>916</td> <td>92.2</td> <td>0.0623</td> <td>116</td> <td>128</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.084375</td> <td>0.055625</td> <td>919</td> <td>918</td> <td>97.6</td> <td>0.0614</td> <td>128</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.071875</td> <td>0.055</td> <td>928</td> <td>927</td> <td>103</td> <td>0.0599</td> <td>144</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.07625</td> <td>0.053125</td> <td>929</td> <td>928</td> <td>94.8</td> <td>0.0665</td> <td>128</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.160625</td> <td>0.080625</td> <td>939</td> <td>937</td> <td>309</td> <td>2.13</td> <td>52.0</td> <td>0.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="DID_Creation_Medium">
+                <h2>Benchmark round: DID_Creation_Medium</h2>
+                <p>Create DID documents for issuers and holders</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for DID_Creation_Medium</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>DID_Creation_Medium</td> <td>150</td> <td>0</td> <td>30.3</td> <td>6.04</td> <td>3.12</td> <td>4.45</td> <td>13.9</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for DID_Creation_Medium</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.05625</td> <td>0.04</td> <td>920</td> <td>918</td> <td>163</td> <td>0.112</td> <td>236</td> <td>16.0</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.039375</td> <td>0.035</td> <td>922</td> <td>921</td> <td>171</td> <td>0.118</td> <td>4.00</td> <td>4.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.08</td> <td>0.048125</td> <td>933</td> <td>931</td> <td>164</td> <td>0.100</td> <td>240</td> <td>4.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.046875</td> <td>0.03875</td> <td>933</td> <td>931</td> <td>130</td> <td>0.105</td> <td>4.00</td> <td>4.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.050625</td> <td>0.039375</td> <td>947</td> <td>944</td> <td>405</td> <td>2.28</td> <td>204</td> <td>0.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Credential_Issuance_Medium">
+                <h2>Benchmark round: Credential_Issuance_Medium</h2>
+                <p>Issue verifiable credentials at high throughput</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for Credential_Issuance_Medium</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Credential_Issuance_Medium</td> <td>150</td> <td>0</td> <td>30.4</td> <td>6.02</td> <td>3.21</td> <td>4.60</td> <td>17.6</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Credential_Issuance_Medium</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [B]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.05625</td> <td>0.04375</td> <td>924</td> <td>922</td> <td>115</td> <td>0.0939</td> <td>192</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.0575</td> <td>0.044375</td> <td>924</td> <td>923</td> <td>164</td> <td>0.0959</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.065625</td> <td>0.049375</td> <td>938</td> <td>936</td> <td>150</td> <td>0.0833</td> <td>56.0</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.0525</td> <td>0.043125</td> <td>936</td> <td>935</td> <td>114</td> <td>0.0960</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.155625</td> <td>0.085625</td> <td>955</td> <td>952</td> <td>389</td> <td>2.28</td> <td>56.0</td> <td>0.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Role_Assignment_High">
+                <h2>Benchmark round: Role_Assignment_High</h2>
+                <p>Assign roles to entities in the network (baseline test)</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for Role_Assignment_High</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Role_Assignment_High</td> <td>300</td> <td>0</td> <td>30.1</td> <td>6.20</td> <td>3.13</td> <td>4.66</td> <td>21.1</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Role_Assignment_High</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [B]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.0725</td> <td>0.0525</td> <td>930</td> <td>927</td> <td>177</td> <td>0.133</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.063125</td> <td>0.048125</td> <td>928</td> <td>926</td> <td>185</td> <td>0.126</td> <td>316</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.0775</td> <td>0.054375</td> <td>944</td> <td>942</td> <td>194</td> <td>0.110</td> <td>236</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.07</td> <td>0.05125</td> <td>943</td> <td>940</td> <td>179</td> <td>0.111</td> <td>220</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.220625</td> <td>0.1075</td> <td>977</td> <td>968</td> <td>629</td> <td>4.82</td> <td>228</td> <td>0.00</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="DID_Creation_High">
+                <h2>Benchmark round: DID_Creation_High</h2>
+                <p>Create DID documents for issuers and holders</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for DID_Creation_High</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>DID_Creation_High</td> <td>300</td> <td>0</td> <td>30.2</td> <td>6.16</td> <td>3.23</td> <td>4.64</td> <td>21.8</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for DID_Creation_High</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [MB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.053125</td> <td>0.04375</td> <td>942</td> <td>937</td> <td>276</td> <td>0.195</td> <td>284</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.059375</td> <td>0.044375</td> <td>939</td> <td>934</td> <td>299</td> <td>0.189</td> <td>288</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.058125</td> <td>0.046875</td> <td>957</td> <td>951</td> <td>290</td> <td>0.200</td> <td>332</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.066875</td> <td>0.04625</td> <td>952</td> <td>947</td> <td>294</td> <td>0.187</td> <td>300</td> <td>4.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.168125</td> <td>0.08625</td> <td>1.01e+3</td> <td>994</td> <td>787</td> <td>5.17</td> <td>328</td> <td>20.0</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;" id="Credential_Issuance_High">
+                <h2>Benchmark round: Credential_Issuance_High</h2>
+                <p>Issue verifiable credentials at high throughput</p>
+                <pre style="overflow: visible;white-space: pre-wrap;max-height:100%;">rateControl:
+  type: fixed-rate
+  opts:
+    tps: 30
+</pre>
+                        <h3>Performance metrics for Credential_Issuance_High</h3>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                     <th>Name</th> <th>Succ</th> <th>Fail</th> <th>Send Rate (TPS)</th> <th>Max Latency (s)</th> <th>Min Latency (s)</th> <th>Avg Latency (s)</th> <th>Throughput (TPS)</th>
+                                </tr>
+                                <tr>
+                                     <td>Credential_Issuance_High</td> <td>300</td> <td>0</td> <td>30.2</td> <td>6.13</td> <td>3.18</td> <td>4.68</td> <td>20.9</td>
+                                </tr>
+                            </table>
+                        <h3>Resource utilization for Credential_Issuance_High</h3>
+                            <h4>Resource monitor: docker</h4>
+                            <table style="min-width: 100%;">
+                                <tr>
+                                <table>
+                                    <tr>
+                                         <th>Name</th> <th>CPU%(max)</th> <th>CPU%(avg)</th> <th>Memory(max) [GB]</th> <th>Memory(avg) [MB]</th> <th>Traffic In [KB]</th> <th>Traffic Out [MB]</th> <th>Disc Write [KB]</th> <th>Disc Read [KB]</th>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator1</td> <td>0.090625</td> <td>0.05</td> <td>0.930</td> <td>947</td> <td>289</td> <td>0.203</td> <td>212</td> <td>216</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator2</td> <td>0.1225</td> <td>0.06</td> <td>0.928</td> <td>946</td> <td>277</td> <td>0.188</td> <td>188</td> <td>16.0</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator3</td> <td>0.075625</td> <td>0.05</td> <td>0.944</td> <td>962</td> <td>275</td> <td>0.191</td> <td>0.00</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;validator4</td> <td>0.0775</td> <td>0.0475</td> <td>0.941</td> <td>958</td> <td>305</td> <td>0.181</td> <td>304</td> <td>0.00</td>
+                                    </tr>
+                                    <tr>
+                                         <td>&#x2F;rpcnode</td> <td>0.2425</td> <td>0.090625</td> <td>1.01</td> <td>1.02e+3</td> <td>793</td> <td>5.19</td> <td>296</td> <td>16.0</td>
+                                    </tr>
+                                </table>
+                                </tr>
+                            </table>
+                            <div class="charting">
+                            </div>
+            </div>
+
+            <div style="border-bottom: 1px solid #d9d9d9; padding-bottom: 10px;">
+                <h2>Test Environment</h2>
+                <h3>benchmark config</h3>
+                <pre id="benchmarkInfo" style="overflow: visible;white-space: pre-wrap;max-height:100%;">name: SSI&#x2F;DID Management System Performance Benchmark on Optimized Besu
+description: &gt;
+  Comprehensive benchmark of SSI operations on Besu CLIQUE PoA network. Tests
+  various DID and Verifiable Credential operations with optimized gas
+  configuration. Block time: 3 seconds, Gas limit: 15M, Target utilization: 80%
+workers:
+  number: 1
+rounds:
+  - label: Role_Assignment_Low
+    description: Assign roles to entities in the network (baseline test)
+    txNumber: 50
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;auth&#x2F;AssignRole.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: assignRole
+  - label: DID_Creation_Low
+    description: Create DID documents for issuers and holders
+    txNumber: 49
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;did&#x2F;CreateDid.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: createDid
+  - label: Credential_Issuance_Low
+    description: Issue verifiable credentials at high throughput
+    txNumber: 49
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;vc&#x2F;IssueCredential.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: issueCredential
+  - label: Role_Assignment_Medium
+    description: Assign roles to entities in the network (baseline test)
+    txNumber: 150
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;auth&#x2F;AssignRole.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: assignRole
+  - label: DID_Creation_Medium
+    description: Create DID documents for issuers and holders
+    txNumber: 149
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;did&#x2F;CreateDid.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: createDid
+  - label: Credential_Issuance_Medium
+    description: Issue verifiable credentials at high throughput
+    txNumber: 149
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;vc&#x2F;IssueCredential.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: issueCredential
+  - label: Role_Assignment_High
+    description: Assign roles to entities in the network (baseline test)
+    txNumber: 300
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;auth&#x2F;AssignRole.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: assignRole
+  - label: DID_Creation_High
+    description: Create DID documents for issuers and holders
+    txNumber: 299
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;did&#x2F;CreateDid.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: createDid
+  - label: Credential_Issuance_High
+    description: Issue verifiable credentials at high throughput
+    txNumber: 299
+    rateControl:
+      type: fixed-rate
+      opts:
+        tps: 30
+    workload:
+      module: workloads&#x2F;vc&#x2F;IssueCredential.js
+      arguments:
+        gasPrice: 1000000000
+        besuEndpoint: &#39;ws:&#x2F;&#x2F;172.16.239.15:8546&#39;
+        chainId: 1337
+        blockTime: 3
+        contractAddresses:
+          RoleControl: &#39;0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc&#39;
+          DidRegistry: &#39;0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4&#39;
+          CredentialRegistry: &#39;0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5&#39;
+        gasConfig:
+          RoleControl:
+            assignRole: 100000
+            revokeRole: 70000
+            getRole: 20000
+            hasRole: 20000
+            getRoleCount: 30000
+          DidRegistry:
+            createDid: 140000
+            updateDid: 80000
+            deactivateDid: 50000
+            resolveDid: 20000
+            validateDid: 20000
+          CredentialRegistry:
+            issueCredential: 130000
+            updateCredentialStatus: 100000
+            resolveCredential: 20000
+        operationType: issueCredential
+</pre>
+                <h3>SUT</h3>
+                <pre id="sutdetails">not provided</pre>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

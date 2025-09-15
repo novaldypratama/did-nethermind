@@ -1,0 +1,103 @@
+services:
+
+    validator1:
+        image: nethermind/nethermind:1.28.0
+        container_name: validator1
+        command: --config config
+        volumes:
+            - ./genesis:/config/genesis
+            - ./validator1/configs/config.cfg:/nethermind/configs/config.cfg
+            - ./static-nodes.json:/nethermind/Data/static-nodes.json
+            - validator1_db:/nethermind/nethermind_db/clique
+            - ./validator1/keystore:/nethermind/keystore
+        ports:
+            - 21001:8545/tcp
+        networks:
+            vpcbr:
+                ipv4_address: 172.16.239.11
+    validator2:
+        image: nethermind/nethermind:1.28.0
+        container_name: validator2
+        command: --config config
+        volumes:
+            - ./genesis:/config/genesis
+            - ./validator2/configs/config.cfg:/nethermind/configs/config.cfg
+            - ./static-nodes.json:/nethermind/Data/static-nodes.json
+            - validator2_db:/nethermind/nethermind_db/clique
+            - ./validator2/keystore:/nethermind/keystore
+        ports:
+            - 21002:8545/tcp
+        networks:
+            vpcbr:
+                ipv4_address: 172.16.239.12
+    validator3:
+        image: nethermind/nethermind:1.28.0
+        container_name: validator3
+        command: --config config
+        volumes:
+            - ./genesis:/config/genesis
+            - ./validator3/configs/config.cfg:/nethermind/configs/config.cfg
+            - ./static-nodes.json:/nethermind/Data/static-nodes.json
+            - validator3_db:/nethermind/nethermind_db/clique
+            - ./validator3/keystore:/nethermind/keystore
+        ports:
+            - 21003:8545/tcp
+        networks:
+            vpcbr:
+                ipv4_address: 172.16.239.13
+    validator4:
+        image: nethermind/nethermind:1.28.0
+        container_name: validator4
+        command: --config config
+        volumes:
+            - ./genesis:/config/genesis
+            - ./validator4/configs/config.cfg:/nethermind/configs/config.cfg
+            - ./static-nodes.json:/nethermind/Data/static-nodes.json
+            - validator4_db:/nethermind/nethermind_db/clique
+            - ./validator4/keystore:/nethermind/keystore
+        ports:
+            - 21004:8545/tcp
+        networks:
+            vpcbr:
+                ipv4_address: 172.16.239.14
+    rpcnode:
+        image: nethermind/nethermind:1.28.0
+        container_name: rpcnode
+        command: --config config
+        volumes:
+            - ./genesis:/config/genesis
+            - ./rpcnode/configs/config.cfg:/nethermind/configs/config.cfg
+            - ./static-nodes.json:/nethermind/Data/static-nodes.json
+            - rpcnode_db:/nethermind/nethermind_db/clique
+            - ./rpcnode/keystore:/nethermind/keystore
+        ports:
+            - "8545:8545/tcp"
+            - "8546:8546/tcp"
+            - "30306:30306/tcp"
+            - "30306:30306/udp"
+        networks:
+            vpcbr:
+                ipv4_address: 172.16.239.15
+        environment:
+            - NETHERMIND_CONFIG=config
+            - NETHERMIND_JSONRPC_CORS_ORIGINS=*
+        healthcheck:
+            test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/8545' && echo 'RPC port is accessible' || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+volumes:
+    validator1_db:
+    validator2_db:
+    validator3_db:
+    validator4_db:
+    rpcnode_db:
+
+networks:
+    vpcbr:
+        driver: bridge
+        ipam:
+            config:
+                - subnet: 172.16.239.0/24

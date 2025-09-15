@@ -1,0 +1,41 @@
+{
+  "contracts": {
+    "roleControl": "0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc",
+    "didRegistry": "0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4",
+    "credentialRegistry": "0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5"
+  },
+  "gasUsage": {
+    "totalGasUsed": "6098022",
+    "totalGasCost": "0.006098022",
+    "gasPrice": "1.0",
+    "estimatedCostUSD": "21.3431",
+    "contractBreakdown": [
+      {
+        "contract": "RoleControl",
+        "gasUsed": "1363882",
+        "gasEstimated": "1787860",
+        "gasPrice": "1.0 gwei",
+        "gasCost": "0.001363882 ETH",
+        "address": "0xBca0fDc68d9b21b5bfB16D784389807017B2bbbc"
+      },
+      {
+        "contract": "DidRegistry",
+        "gasUsed": "2298115",
+        "gasEstimated": "3011472",
+        "gasPrice": "1.0 gwei",
+        "gasCost": "0.002298115 ETH",
+        "address": "0x9A8ea6736DF00Af70D1cD70b1Daf3619C8c0D7F4"
+      },
+      {
+        "contract": "CredentialRegistry",
+        "gasUsed": "2436025",
+        "gasEstimated": "3192099",
+        "gasPrice": "1.0 gwei",
+        "gasCost": "0.002436025 ETH",
+        "address": "0xeB35B7bA819DAD84E60752c357d45e5ce41D85c5"
+      }
+    ]
+  },
+  "network": "localhost",
+  "timestamp": "2025-09-15T17:41:22.274Z"
+}

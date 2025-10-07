@@ -1,0 +1,41 @@
+# Node.js dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+
+# Optional: ignore pnpm or yarn lock files if not using them
+pnpm-lock.yaml
+yarn.lock
+
+# Caliper benchmark results and logs
+*.log
+*.out
+*.tmp
+caliper-report.html
+caliper-workspace/
+
+# Caliper benchmark reports
+*.csv
+
+# Docker-related
+docker-compose.override.yml
+.env
+.env.*
+
+# VSCode settings
+.vscode/
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+
+# Ignore compiled JS if using TypeScript
+dist/
+build/
+*.tsbuildinfo
+
+# Ignore custom temporary credentials/configs (optional, if used locally)
+crypto-config/
+connection-profiles/

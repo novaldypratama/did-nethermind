@@ -29,7 +29,7 @@ class SimplifiedIssueCredential extends SimplifiedSSIOperationBase {
    */
   async submitTransaction() {
     try {
-      console.log(`Worker ${this.workerIndex}: Starting Issue Credential...`);
+      // console.log(`Worker ${this.workerIndex}: Starting Issue Credential...`);
       
       // Get Issue Credential arguments from state manager - now async
       const credentialArgs = await this.ssiState.getCredentialIssuanceArguments();
@@ -52,8 +52,6 @@ class SimplifiedIssueCredential extends SimplifiedSSIOperationBase {
         credentialId: credentialArgs.credentialId,
         credentialCid: credentialArgs.credentialCid
       };
-
-      console.log(`args_array:`, Object.values(issueCredentialArgs));
 
       const result = await this.executeSSIOperation(
         SimplifiedSSIOperationBase.CONTRACTS.CREDENTIAL_REGISTRY,

@@ -3,7 +3,7 @@
 # Common SSI benchmark arguments with optimized gas settings
 ssiArgs: &ssi-args
   gasPrice: 1000000000
-  besuEndpoint: "ws://172.16.239.15:8546"
+  nethermindEndpoint: "ws://172.16.239.15:8546"
   chainId: 1337
   blockTime: 3 # 3-second block time
 
@@ -17,7 +17,7 @@ ssiArgs: &ssi-args
   gasConfig:
     # Role Control operations
     RoleControl:
-      assignRole: 100000 # Increased for authorization checks
+      assignRole: 90000 # Increased for authorization checks
       revokeRole: 70000
       getRole: 20000 # Read operations need more gas for complex contracts
       hasRole: 20000
@@ -25,7 +25,7 @@ ssiArgs: &ssi-args
 
     # DID Registry operations
     DidRegistry:
-      createDid: 140000 # Increased for cross-contract validation
+      createDid: 135000 # Increased for cross-contract validation
       updateDid: 80000
       deactivateDid: 50000
       resolveDid: 20000
@@ -48,13 +48,13 @@ test:
     number: 1
   rounds:
     # Phase 1: Role Management (Low Load)
-    - label: Role_Assignment_Low
+    - label: Role_Assignment
       description: Assign roles to entities in the network (baseline test)
-      txNumber: 50
+      txDuration: 60
       rateControl:
         type: fixed-rate
         opts:
-          tps: 30 # Conservative start (reduced from 20 to prevent overloading)
+          tps: 100 # Conservative start (reduced from 20 to prevent overloading)
       workload:
         module: workloads/auth/AssignRole.js
         arguments:
@@ -62,13 +62,13 @@ test:
           operationType: "assignRole"
 
     # Phase 2: DID Creation (Low Load)
-    - label: DID_Creation_Low
+    - label: DID_Creation
       description: Create DID documents for issuers and holders
-      txNumber: 49
+      txDuration: 60
       rateControl:
         type: fixed-rate
         opts:
-          tps: 30 # Reduced rate for complex DID operations
+          tps: 100 # Reduced rate for complex DID operations
       workload:
         module: workloads/did/CreateDid.js
         arguments:
@@ -76,102 +76,102 @@ test:
           operationType: "createDid"
 
     # Phase 3: Credential Issuance (Low Load)
-    - label: Credential_Issuance_Low
+    - label: Credential_Issuance
       description: Issue verifiable credentials at high throughput
-      txNumber: 49
+      txDuration: 60
       rateControl:
         type: fixed-rate
         opts:
-          tps: 30 # ~65% block utilization
+          tps: 100 # ~65% block utilization
       workload:
         module: workloads/vc/IssueCredential.js
         arguments:
           <<: *ssi-args
           operationType: "issueCredential"
 
-    # Phase 4: Role Management (Medium Load)
-    - label: Role_Assignment_Medium
-      description: Assign roles to entities in the network (baseline test)
-      txNumber: 150
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 30 # Conservative start (reduced from 20 to prevent overloading)
-      workload:
-        module: workloads/auth/AssignRole.js
-        arguments:
-          <<: *ssi-args
-          operationType: "assignRole"
+    # # Phase 4: Role Management (Medium Load)
+    # - label: Role_Assignment_Medium
+    #   description: Assign roles to entities in the network (baseline test)
+    #   txNumber: 150
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 30 # Conservative start (reduced from 20 to prevent overloading)
+    #   workload:
+    #     module: workloads/auth/AssignRole.js
+    #     arguments:
+    #       <<: *ssi-args
+    #       operationType: "assignRole"
 
-    # Phase 5: DID Creation (Medium Load)
-    - label: DID_Creation_Medium
-      description: Create DID documents for issuers and holders
-      txNumber: 149
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 30 # Reduced rate for complex DID operations
-      workload:
-        module: workloads/did/CreateDid.js
-        arguments:
-          <<: *ssi-args
-          operationType: "createDid"
+    # # Phase 5: DID Creation (Medium Load)
+    # - label: DID_Creation_Medium
+    #   description: Create DID documents for issuers and holders
+    #   txNumber: 149
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 30 # Reduced rate for complex DID operations
+    #   workload:
+    #     module: workloads/did/CreateDid.js
+    #     arguments:
+    #       <<: *ssi-args
+    #       operationType: "createDid"
 
-    # Phase 6: Credential Issuance (Medium Load)
-    - label: Credential_Issuance_Medium
-      description: Issue verifiable credentials at high throughput
-      txNumber: 149
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 30 # ~65% block utilization
-      workload:
-        module: workloads/vc/IssueCredential.js
-        arguments:
-          <<: *ssi-args
-          operationType: "issueCredential"
+    # # Phase 6: Credential Issuance (Medium Load)
+    # - label: Credential_Issuance_Medium
+    #   description: Issue verifiable credentials at high throughput
+    #   txNumber: 149
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 30 # ~65% block utilization
+    #   workload:
+    #     module: workloads/vc/IssueCredential.js
+    #     arguments:
+    #       <<: *ssi-args
+    #       operationType: "issueCredential"
 
-    # Phase 7: Role Management (High Load)
-    - label: Role_Assignment_High
-      description: Assign roles to entities in the network (baseline test)
-      txNumber: 300
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 30 # Conservative start (reduced from 20 to prevent overloading)
-      workload:
-        module: workloads/auth/AssignRole.js
-        arguments:
-          <<: *ssi-args
-          operationType: "assignRole"
+    # # Phase 7: Role Management (High Load)
+    # - label: Role_Assignment_High
+    #   description: Assign roles to entities in the network (baseline test)
+    #   txNumber: 300
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 30 # Conservative start (reduced from 20 to prevent overloading)
+    #   workload:
+    #     module: workloads/auth/AssignRole.js
+    #     arguments:
+    #       <<: *ssi-args
+    #       operationType: "assignRole"
 
-    # Phase 8: DID Creation (High Load)
-    - label: DID_Creation_High
-      description: Create DID documents for issuers and holders
-      txNumber: 299
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 30 # Reduced rate for complex DID operations
-      workload:
-        module: workloads/did/CreateDid.js
-        arguments:
-          <<: *ssi-args
-          operationType: "createDid"
+    # # Phase 8: DID Creation (High Load)
+    # - label: DID_Creation_High
+    #   description: Create DID documents for issuers and holders
+    #   txNumber: 299
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 30 # Reduced rate for complex DID operations
+    #   workload:
+    #     module: workloads/did/CreateDid.js
+    #     arguments:
+    #       <<: *ssi-args
+    #       operationType: "createDid"
 
-    # Phase 9: Credential Issuance (High Load)
-    - label: Credential_Issuance_High
-      description: Issue verifiable credentials at high throughput
-      txNumber: 299
-      rateControl:
-        type: fixed-rate
-        opts:
-          tps: 30 # ~65% block utilization
-      workload:
-        module: workloads/vc/IssueCredential.js
-        arguments:
-          <<: *ssi-args
-          operationType: "issueCredential"
+    # # Phase 9: Credential Issuance (High Load)
+    # - label: Credential_Issuance_High
+    #   description: Issue verifiable credentials at high throughput
+    #   txNumber: 299
+    #   rateControl:
+    #     type: fixed-rate
+    #     opts:
+    #       tps: 30 # ~65% block utilization
+    #   workload:
+    #     module: workloads/vc/IssueCredential.js
+    #     arguments:
+    #       <<: *ssi-args
+    #       operationType: "issueCredential"
 
     # # Phase 4: Mixed Operations (Peak Load)
     # - label: MixedOperations_PeakLoad

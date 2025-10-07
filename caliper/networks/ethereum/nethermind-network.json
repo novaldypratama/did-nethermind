@@ -4,6 +4,7 @@
   },
   "ethereum": {
     "url": "ws://localhost:8546",
+    "gasPrice": 1000000000,
     "contractDeployerAddresses": "0xc9c913c8c3c1cd416d80a0abf475db2062f161f6",
     "contractDeployerAddressPrivateKeys": "0x60bbe10a196a4e71451c0f6e9ec9beab454c2a5ac0542aa5b8b733ff5719fec3",
     "fromAddress": "0xc9c913c8c3c1cd416d80a0abf475db2062f161f6",
@@ -53,7 +54,7 @@
         "deploy": false,
         "estimateGas": false,
         "gas": {
-          "assignRole": 100000,
+          "assignRole": 90000,
           "revokeRole": 70000,
           "getRole": 20000,
           "hasRole": 20000,
@@ -322,7 +323,7 @@
         "deploy": false,
         "estimateGas": false,
         "gas": {
-          "createDid": 140000,
+          "createDid": 135000,
           "updateDid": 80000,
           "deactivateDid": 50000,
           "resolveDid": 20000,

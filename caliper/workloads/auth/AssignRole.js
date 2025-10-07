@@ -30,7 +30,7 @@ class SimplifiedAssignRole extends SimplifiedSSIOperationBase {
    */
   async submitTransaction() {
     try {
-      console.log(`Worker ${this.workerIndex}: Starting role assignment...`);
+      // console.log(`Worker ${this.workerIndex}: Starting role assignment...`);
       
       // Get role assignment arguments from state manager
       const roleArgs = this.ssiState.getRoleAssignmentArguments();

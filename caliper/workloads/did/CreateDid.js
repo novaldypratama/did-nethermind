@@ -14,6 +14,7 @@ class SimplifiedCreateDid extends SimplifiedSSIOperationBase {
   constructor() {
     super();
     this.operationType = 'createDid';
+    this.debugMode = false; // Set to true for verbose logging
   }
 
   /**
@@ -30,7 +31,7 @@ class SimplifiedCreateDid extends SimplifiedSSIOperationBase {
    */
   async submitTransaction() {
     try {
-      console.log(`Worker ${this.workerIndex}: Starting DID creation...`);
+      // console.log(`Worker ${this.workerIndex}: Starting DID creation...`);
       
       // Get DID creation arguments from state manager - now async
       const didArgs = await this.ssiState.getDIDCreationArguments();
@@ -38,13 +39,6 @@ class SimplifiedCreateDid extends SimplifiedSSIOperationBase {
       if (!didArgs) {
         throw new Error('Failed to generate DID creation arguments');
       }
-      
-      console.log(`DID creation args:`, {
-        caller: didArgs.caller.substring(0, 10) + '...',
-        identity: didArgs.identity.substring(0, 10) + '...',
-        docHash: `${didArgs.docHash.substring(0, 10)}...`,
-        cidLength: didArgs.docCid.length
-      });
       
       // Execute DID creation operation using WebSocket provider
       // For createDid(address identity, bytes32 docHash, string calldata docCid)
@@ -59,10 +53,12 @@ class SimplifiedCreateDid extends SimplifiedSSIOperationBase {
         SimplifiedSSIOperationBase.CONTRACTS.DID_REGISTRY,
         SimplifiedSSIOperationBase.OPERATIONS.CREATE_DID,
         createDidArgs,
-        // The caller address (fromAddress) is now handled by the contract via msg.sender
+        { fromAddress: didArgs.identity } // Use identity as the transaction sender
       );
       
-      console.log(`✅ DID creation successful for Worker ${this.workerIndex}`);
+      if (this.debugMode) {
+        console.log(`✅ DID creation successful for Worker ${this.workerIndex}`);
+      }
       
       return result;
     } catch (error) {

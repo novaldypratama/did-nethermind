@@ -44,7 +44,7 @@ const SSI_ROLES = {
 
 /**
  * Simplified SSI Operation Base with Caliper Ethereum Integration
- * Leverages @hyperledger/caliper-ethereum for optimal Besu transaction handling
+ * Leverages @hyperledger/caliper-ethereum for optimal Nethermind transaction handling
  */
 class SimplifiedSSIOperationBase extends WorkloadModuleBase {
   /**
@@ -104,7 +104,7 @@ class SimplifiedSSIOperationBase extends WorkloadModuleBase {
    */
   initializeSSIConfiguration() {
     // Extract required configuration (simplified for Caliper Ethereum)
-    const requiredSettings = ['besuEndpoint', 'chainId'];
+    const requiredSettings = ['nethermindEndpoint', 'chainId'];
 
     requiredSettings.forEach(setting => {
       if (!this.roundArguments.hasOwnProperty(setting)) {
@@ -115,7 +115,7 @@ class SimplifiedSSIOperationBase extends WorkloadModuleBase {
     // Store SSI configuration optimized for Caliper Ethereum
     this.ssiConfig = {
       chainId: this.roundArguments.chainId || 1337,
-      besuEndpoint: this.roundArguments.besuEndpoint,
+      nethermindEndpoint: this.roundArguments.nethermindEndpoint,
       contractAddresses: this.roundArguments.contractAddresses || {},
       gasConfig: this.roundArguments.gasConfig || {},
       // Additional Caliper Ethereum specific configurations
@@ -289,9 +289,9 @@ class SimplifiedSSIOperationBase extends WorkloadModuleBase {
 
     // Fallback to reasonable defaults optimized for SSI operations
     const defaultGasLimits = {
-      'assignRole': 100000,
+      'assignRole': 90000,
       'revokeRole': 70000,
-      'createDid': 140000,
+      'createDid': 135000,
       'updateDid': 80000,
       'issueCredential': 130000,
       'updateCredentialStatus': 100000,
@@ -328,7 +328,7 @@ class SimplifiedSSIOperationBase extends WorkloadModuleBase {
 
       console.log('Caliper request gas:', request.gas);
 
-      // Use sutAdapter.sendRequests for optimal Besu interaction
+      // Use sutAdapter.sendRequests for optimal Nethermind interaction
       result = await this.sutAdapter.sendRequests(request);
 
       const executionTime = Date.now() - startTime;
